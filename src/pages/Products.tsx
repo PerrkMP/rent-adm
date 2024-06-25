@@ -21,11 +21,34 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogActions from '@mui/material/DialogActions';
 
+// Custom Markdown parser rules
+const mdParser = new MarkdownIt();
+
+mdParser.renderer.rules.strong_open = () => '<messageEntityBold>';
+mdParser.renderer.rules.strong_close = () => '</messageEntityBold>';
+
+mdParser.renderer.rules.em_open = () => '<messageEntityItalic>';
+mdParser.renderer.rules.em_close = () => '</messageEntityItalic>';
+
+mdParser.renderer.rules.code_inline = (tokens, idx) => {
+  const content = tokens[idx].content;
+  return `<messageEntityCode>${content}</messageEntityCode>`;
+};
+
+mdParser.renderer.rules.del_open = () => '<messageEntityStrike>';
+mdParser.renderer.rules.del_close = () => '</messageEntityStrike>';
+
+mdParser.renderer.rules.u_open = () => '<messageEntityUnderline>';
+mdParser.renderer.rules.u_close = () => '</messageEntityUnderline>';
+
+mdParser.renderer.rules.pre = (tokens, idx) => {
+  const content = tokens[idx].content;
+  return `<messageEntityPre>${content}</messageEntityPre>`;
+};
+
 interface ProductsProps {
   setIsLoading: (isLoading: boolean) => void;
 }
-
-const mdParser = new MarkdownIt();
 
 const Transition = React.forwardRef(function Transition(
   props: { children: React.ReactElement<any, any> },
