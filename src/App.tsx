@@ -1,26 +1,29 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import Users from './pages/Users';
+import {Layout} from "./layout";
+import SignIn from "./pages/SignIn";
+import Category from "./pages/Category";
+import Products from "./pages/Products";
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Layout>
+        {(setIsLoading) => (
+          <Routes>
+            <Route path="/" element={<Home setIsLoading={setIsLoading} />} />
+            <Route path="/users" element={<Users setIsLoading={setIsLoading} />} />
+            <Route path="/login" element={<SignIn />} />
+            <Route path="/category" element={<Category setIsLoading={setIsLoading} />} />
+            <Route path="/products" element={<Products setIsLoading={setIsLoading} />} />
+            {/*<Route path="*" element={<NotFound />} />*/}
+          </Routes>
+        )}
+      </Layout>
+    </Router>
   );
-}
+};
 
 export default App;
