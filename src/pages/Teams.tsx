@@ -18,11 +18,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-
 
 interface TeamProps {
   setIsLoading: (isLoading: boolean) => void;
@@ -39,6 +40,7 @@ interface Users {
 interface Team {
   id: number;
   name: string;
+  head_id?: number;
 }
 
 interface TeamWithUsers extends Team {
@@ -80,7 +82,7 @@ function Row(props: { row: TeamWithUsers; onEdit: (team: Team) => void }) {
               <Typography variant="h6" gutterBottom component="div">
                 Пользователи
               </Typography>
-              <Table size="small" aria-label="products">
+              <Table size="small" aria-label="users">
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
@@ -97,7 +99,7 @@ function Row(props: { row: TeamWithUsers; onEdit: (team: Team) => void }) {
                       <TableCell>{user.telegram_id}</TableCell>
                       <TableCell>{user.name}</TableCell>
                       <TableCell>{user.username}</TableCell>
-                      <TableCell>{user.is_head}</TableCell>
+                      <TableCell>{user.is_head ? 'Да' : 'Нет'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -110,16 +112,18 @@ function Row(props: { row: TeamWithUsers; onEdit: (team: Team) => void }) {
   );
 }
 
-const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
+const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
   const [teams, setTeams] = React.useState<TeamWithUsers[]>([]);
+  const [users, setUsers] = React.useState<Users[]>([]);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [dialogTitle, setDialogTitle] = React.useState('');
   const [teamName, setTeamName] = React.useState('');
+  const [headId, setHeadId] = React.useState<number | string>('');
   const [currentTeam, setCurrentTeam] = React.useState<Team | null>(null);
 
   React.useEffect(() => {
-    setIsLoading(true)
-    const fetchTeams = async () => {
+    setIsLoading(true);
+    const fetchTeamsAndUsers = async () => {
       try {
         const teamResponse = await axios.get('/teams');
         const teamsData = teamResponse.data.data;
@@ -130,12 +134,16 @@ const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
 
           return {
             ...team,
-            products: usersData,
+            users: usersData,
           };
         });
 
         const teamsWithUsers = await Promise.all(teamWithUsersPromises);
         setTeams(teamsWithUsers);
+
+        // Fetch all users
+        const usersResponse = await axios.get('/users');
+        setUsers(usersResponse.data.data);
       } catch (error) {
         console.error('Ошибка при загрузке команд и пользователей:', error);
       } finally {
@@ -143,12 +151,13 @@ const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
       }
     };
 
-    fetchTeams();
+    fetchTeamsAndUsers();
   }, [setIsLoading]);
 
   const handleEdit = (team: Team) => {
     setCurrentTeam(team);
     setTeamName(team.name);
+    setHeadId(team.head_id ?? '');
     setDialogTitle('Редактировать команду');
     setOpenDialog(true);
   };
@@ -156,6 +165,7 @@ const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
   const handleCreate = () => {
     setCurrentTeam(null);
     setTeamName('');
+    setHeadId('');
     setDialogTitle('Создать команду');
     setOpenDialog(true);
   };
@@ -167,17 +177,21 @@ const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
   const handleSave = async () => {
     try {
       if (currentTeam) {
-        // Обновление категории
+        // Обновление команды
         await axios.patch('/teams', {
           id: currentTeam.id,
-          name: teamName
+          name: teamName,
+          head_id: headId,
         });
       } else {
-        // Создание новой категории
+        // Создание новой команды
         await axios.post('/teams', {
-          name: teamName
+          name: teamName,
+          head_id: headId,
         });
       }
+
+      // Обновление данных
       const teamResponse = await axios.get('/teams');
       const teamsData = teamResponse.data.data;
 
@@ -187,14 +201,14 @@ const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
 
         return {
           ...team,
-          products: usersData,
+          users: usersData,
         };
       });
 
       const teamsWithUsers = await Promise.all(teamWithUsersPromises);
       setTeams(teamsWithUsers);
     } catch (error) {
-      console.error('Ошибка при сохранении категории:', error);
+      console.error('Ошибка при сохранении команды:', error);
     } finally {
       handleClose();
     }
@@ -222,23 +236,36 @@ const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Dialog
-        open={openDialog}
-        onClose={handleClose}
-        aria-labelledby="form-dialog-title"
-      >
+      <Dialog open={openDialog} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">{dialogTitle}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
             id="name"
-            label="Название категории"
+            label="Название команды"
             type="text"
             fullWidth
             value={teamName}
             onChange={(e) => setTeamName(e.target.value)}
           />
+          <Select
+            fullWidth
+            value={headId}
+            onChange={(e) => setHeadId(e.target.value as number)}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Выберите главу команды' }}
+            sx={{ mt: 2 }}
+          >
+            <MenuItem value="">
+              <em>Выберите главу команды</em>
+            </MenuItem>
+            {users.map((user) => (
+              <MenuItem key={user.id} value={user.id}>
+                {user.name} ({user.username})
+              </MenuItem>
+            ))}
+          </Select>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
@@ -253,6 +280,4 @@ const Category: React.FC<TeamProps> = ({ setIsLoading }) => {
   );
 }
 
-export default Category;
-
-// export {}
+export default Team;
