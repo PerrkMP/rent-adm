@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from '../axiosConfig';
-import {DataGrid, GridColDef, GridRenderCellParams, GridRowSelectionModel} from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import AppBar from '@mui/material/AppBar';
@@ -13,38 +13,18 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import { useState, useEffect } from 'react';
-import MarkdownIt from 'markdown-it';
-import MdEditor from 'react-markdown-editor-lite';
-import 'react-markdown-editor-lite/lib/index.css';
 import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from "@mui/material/DialogTitle";
+import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 
-// Custom Markdown parser rules
-const mdParser = new MarkdownIt();
-
-mdParser.renderer.rules.strong_open = () => '<messageEntityBold>';
-mdParser.renderer.rules.strong_close = () => '</messageEntityBold>';
-
-mdParser.renderer.rules.em_open = () => '<messageEntityItalic>';
-mdParser.renderer.rules.em_close = () => '</messageEntityItalic>';
-
-mdParser.renderer.rules.code_inline = (tokens, idx) => {
-  const content = tokens[idx].content;
-  return `<messageEntityCode>${content}</messageEntityCode>`;
-};
-
-mdParser.renderer.rules.del_open = () => '<messageEntityStrike>';
-mdParser.renderer.rules.del_close = () => '</messageEntityStrike>';
-
-mdParser.renderer.rules.u_open = () => '<messageEntityUnderline>';
-mdParser.renderer.rules.u_close = () => '</messageEntityUnderline>';
-
-mdParser.renderer.rules.pre = (tokens, idx) => {
-  const content = tokens[idx].content;
-  return `<messageEntityPre>${content}</messageEntityPre>`;
-};
+import {
+  Editor,
+  EditorState,
+  RichUtils,
+  convertToRaw,
+  convertFromRaw
+} from 'draft-js';
+import 'draft-js/dist/Draft.css';
 
 interface ProductsProps {
   setIsLoading: (isLoading: boolean) => void;
@@ -80,7 +60,7 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState({ name: '', image_url: '', description: '', category_id: '', price: 0 });
+  const [formData, setFormData] = useState({ name: '', image_url: '', description: EditorState.createEmpty(), category_id: '', price: 0 });
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
 
@@ -115,8 +95,8 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
     setFormData({
       name: product?.name || '',
       image_url: product?.image_url || '',
-      description: product?.description || '',
-      category_id: product?.category_id ? product.category_id.toString() : '', // Проверка на наличие category_id
+      description: product ? EditorState.createWithContent(convertFromRaw(JSON.parse(product.description))) : EditorState.createEmpty(),
+      category_id: product?.category_id ? product.category_id.toString() : '',
       price: product?.price || 0,
     });
     setIsEditMode(!!product);
@@ -138,19 +118,20 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
 
   const handleSave = async () => {
     try {
+      const description = JSON.stringify(convertToRaw(formData.description.getCurrentContent()));
       if (isEditMode) {
         await axios.patch(`/products`, {
           id: selectedProduct!.id,
           name: formData.name,
           image_url: formData.image_url,
-          description: formData.description,
+          description: description,
           price: formData.price,
         });
       } else {
         await axios.post('/products', {
           name: formData.name,
           image_url: formData.image_url,
-          description: formData.description,
+          description: description,
           price: formData.price,
         });
       }
@@ -247,6 +228,19 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
       ),
     },
   ];
+
+  const handleKeyCommand = (command: string, editorState: EditorState) => {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      setFormData({ ...formData, description: newState });
+      return 'handled';
+    }
+    return 'not-handled';
+  };
+
+  const toggleInlineStyle = (style: string) => {
+    setFormData({ ...formData, description: RichUtils.toggleInlineStyle(formData.description, style) });
+  };
 
   return (
     <React.Fragment>
@@ -355,12 +349,18 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
 
             {/* Третья секция: Описание с поддержкой Markdown */}
             <Box sx={{ m: 1, width: '100%' }}>
-              <MdEditor
-                value={formData.description}
-                style={{ height: '400px' }}
-                renderHTML={text => mdParser.render(text)}
-                onChange={({ text }) => setFormData({ ...formData, description: text })}
-              />
+              <Button onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('BOLD'); }}>Bold</Button>
+              <Button onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('ITALIC'); }}>Italic</Button>
+              <Button onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('UNDERLINE'); }}>Underline</Button>
+              <Button onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('STRIKETHROUGH'); }}>Strikethrough</Button>
+              <Button onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('CODE'); }}>Code</Button>
+              <Box sx={{ border: '1px solid #ddd', padding: 2, minHeight: '400px' }}>
+                <Editor
+                  editorState={formData.description}
+                  handleKeyCommand={handleKeyCommand}
+                  onChange={(newState) => setFormData({ ...formData, description: newState })}
+                />
+              </Box>
             </Box>
           </Container>
         </Box>
