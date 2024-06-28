@@ -21,7 +21,6 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [totalDeposits, setTotalDeposits] = useState(0);
 
-
   useEffect(() => {
     setIsLoading(true);
     axios.get('/transactions')
@@ -64,11 +63,12 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(now.getFullYear(), now.getMonth(), day);
-      const formattedDate = date.toLocaleDateString();
-      const transaction = transactions.find(t => new Date(t.created_at).toLocaleDateString() === formattedDate);
+      const formattedDate = date.toISOString().split('T')[0];
+      const transactionsForDay = transactions.filter(t => t.created_at.split('T')[0] === formattedDate);
+      const totalAmountForDay = transactionsForDay.reduce((acc, t) => acc + t.amount, 0);
       data.push({
         time: formattedDate,
-        amount: transaction ? transaction.amount : 0
+        amount: totalAmountForDay,
       });
     }
 
