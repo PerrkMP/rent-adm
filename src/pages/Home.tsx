@@ -28,16 +28,15 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
         const data = response.data.data;
         setTransactions(data);
 
-        const deposits = data
-          .filter((transaction: any) =>
-            (transaction.type === 'payment' && transaction.status === 'success' && transaction.payment_method_id !== 2) ||
-            transaction.type === 'refill'
-          )
+        const paymentDeposits = data
+          .filter((transaction: any) => transaction.type === 'payment' && transaction.status === 'success' && transaction.payment_method_id !== 2)
           .reduce((acc: number, transaction: any) => acc + transaction.amount, 0);
 
-        alert(deposits);
+        const refillDeposits = data
+          .filter((transaction: any) => transaction.type === 'refill')
+          .reduce((acc: number, transaction: any) => acc + transaction.amount, 0);
 
-        setTotalDeposits(deposits);
+        setTotalDeposits(paymentDeposits + refillDeposits);
       })
       .catch(error => {
         console.error('Error fetching transactions:', error);
