@@ -118,7 +118,6 @@ const Transactions: React.FC<TransactionsProps> = ({ setIsLoading }) => {
     axios.post('/transactions', formData)
       .then(response => {
         if (response.status === 200) {
-          alert('Транзакция успешно создана');
           setOpen(false);
           axios.get('/transactions')
             .then(response => {
@@ -171,6 +170,7 @@ const Transactions: React.FC<TransactionsProps> = ({ setIsLoading }) => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell align="right">Статус</TableCell>
+              <TableCell align="right">Тип</TableCell>
               <TableCell align="right">Плательщик</TableCell>
               <TableCell align="right">Баланс кошелька</TableCell>
               <TableCell align="right">Валюта</TableCell>
@@ -185,6 +185,7 @@ const Transactions: React.FC<TransactionsProps> = ({ setIsLoading }) => {
               <TableRow key={row.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component="th" scope="row">{row.id}</TableCell>
                 <TableCell align="right">{row.status}</TableCell>
+                <TableCell align="right">{row.type}</TableCell>
                 <TableCell align="right">{row.payer.username}</TableCell>
                 <TableCell align="right">{row.wallet.balance}</TableCell>
                 <TableCell align="right">{row.wallet.currency}</TableCell>
