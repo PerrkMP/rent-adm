@@ -21,6 +21,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [totalDeposits, setTotalDeposits] = useState(0);
 
+
   useEffect(() => {
     setIsLoading(true);
     axios.get('/transactions')
