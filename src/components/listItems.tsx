@@ -5,7 +5,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import PeopleIcon from '@mui/icons-material/People';
 import CategoryIcon from '@mui/icons-material/Category';
 import AppsIcon from '@mui/icons-material/Apps';
@@ -22,12 +22,12 @@ export const mainListItems = (
         <ListItemText primary="Дашборд" />
       </ListItemButton>
     </Link>
-    <Link to="/orders">
+    <Link to="/transactions">
       <ListItemButton>
         <ListItemIcon>
-          <ShoppingCartIcon />
+          <ReceiptIcon />
         </ListItemIcon>
-        <ListItemText primary="Продажи" />
+        <ListItemText primary="Транзакции" />
       </ListItemButton>
     </Link>
     <Link to="/users">
