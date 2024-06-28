@@ -35,6 +35,8 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
           )
           .reduce((acc: number, transaction: any) => acc + transaction.amount, 0);
 
+        alert(deposits);
+
         setTotalDeposits(deposits);
       })
       .catch(error => {
@@ -104,7 +106,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
               ]}
               yAxis={[
                 {
-                  label: 'Amount ($)',
+                  label: 'Сумма ($)',
                   labelStyle: { fill: '#000' } as ChartsTextStyle,
                   tickLabelStyle: { fill: '#000' } as ChartsTextStyle,
                   max: Math.max(...transactions.map(t => t.amount)) + 500,
