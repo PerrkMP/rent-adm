@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Title from '../components/Title';
 import Typography from '@mui/material/Typography';
-import { Link } from 'react-router-dom';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -68,7 +68,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
       const totalAmountForDay = transactionsForDay.reduce((acc, t) => acc + t.amount, 0);
       data.push({
         time: formattedDate,
-        amount: totalAmountForDay,
+        amount: totalAmountForDay || 0,
       });
     }
 
@@ -86,7 +86,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
             height: 240,
           }}
         >
-          <Title>Динамика за месяц</Title>
+          <Title>Monthly Transaction Dynamics</Title>
           <div style={{ width: '100%', flexGrow: 1, overflow: 'hidden' }}>
             <LineChart
               dataset={getMonthlyData()}
@@ -106,10 +106,10 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
               ]}
               yAxis={[
                 {
-                  label: 'Сумма ($)',
+                  label: 'Amount ($)',
                   labelStyle: { fill: '#000' } as ChartsTextStyle,
                   tickLabelStyle: { fill: '#000' } as ChartsTextStyle,
-                  max: Math.max(...transactions.map(t => t.amount)) + 500,
+                  max: Math.max(...getMonthlyData().map(d => d.amount)) + 500,
                   tickNumber: 5,
                 },
               ]}
@@ -140,7 +140,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
             height: 240,
           }}
         >
-          <Title>Доход</Title>
+          <Title>Recent Deposits</Title>
           <Typography component="p" variant="h4">
             ${totalDeposits.toFixed(2)}
           </Typography>
@@ -151,16 +151,16 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
       </Grid>
       <Grid item xs={12}>
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-          <Title>Последние транзакции</Title>
+          <Title>Recent Transactions</Title>
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Плательщик</TableCell>
-                <TableCell>Инициатор</TableCell>
-                <TableCell>Сумма</TableCell>
-                <TableCell>Способ оплаты</TableCell>
-                <TableCell>Тип платежа</TableCell>
+                <TableCell>Payer</TableCell>
+                <TableCell>Initiator</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Payment Method</TableCell>
+                <TableCell>Type</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -176,7 +176,9 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
               ))}
             </TableBody>
           </Table>
-          <Link to="/transactions">Все транзакции</Link>
+          <Link color="primary" href="#" sx={{ mt: 3 }}>
+            View all
+          </Link>
         </Paper>
       </Grid>
     </Grid>
