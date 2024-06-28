@@ -233,6 +233,66 @@ const Users: React.FC<UsersProps> = ({ setIsLoading }) => {
     });
   };
 
+  const handleCreateWallet = () => {
+    setOpen(false); // Закрыть модальное окно
+    setIsLoading(true); // Включить экран загрузки
+
+    axios.post(`/wallets/${selectedUser.id}`)
+      .then(response => {
+        if (response.status === 200) {
+          setAlert({ message: response.data.detail.details.msg, severity: 'success' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
+        } else {
+          setAlert({ message: 'Неизвестная ошибка', severity: 'error' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
+        }
+      })
+      .catch(error => {
+        if (error.response) {
+          if (error.response.status === 401) {
+            setIsLoading(false);
+            navigate('/login');
+          }
+          setAlert({ message: error.response.data.detail.details.msg, severity: 'error' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false); // Убрать экран загрузки
+        // Обновить список пользователей после создания кошелька
+        axios.get('/users')
+          .then(response => {
+            if (response.status === 200) {
+              setRows(response.data.data);
+              setAlert({ message: response.data.detail.details.msg, severity: 'success' });
+              setShowAlert(true);
+              setTimeout(() => setShowAlert(false), 2500);
+            } else {
+              setAlert({ message: 'Неизвестная ошибка', severity: 'error' });
+              setShowAlert(true);
+              setTimeout(() => setShowAlert(false), 2500);
+            }
+          })
+          .catch(error => {
+            if (error.response) {
+              if (error.response.status === 401) {
+                setIsLoading(false);
+                navigate('/login');
+              }
+              setAlert({ message: error.response.data.detail.details.msg, severity: 'error' });
+              setShowAlert(true);
+              setTimeout(() => setShowAlert(false), 2500);
+            }
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      });
+  };
+
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', type: 'number', width: 70 },
     { field: 'telegram_id', headerName: 'Telegram ID', type: 'number', width: 150 },
@@ -244,6 +304,8 @@ const Users: React.FC<UsersProps> = ({ setIsLoading }) => {
     { field: 'is_head', headerName: 'Хед команды', type: 'boolean', width: 100 },
     { field: 'registered_at', headerName: 'Дата регистрации', width: 150 },
     { field: 'last_auth', headerName: 'Дата последней авторизации', width: 150 },
+    { field: 'wallet_balance', headerName: 'Баланс', type: 'number', width: 130, renderCell: (params) => params.row.wallet ? params.row.wallet.balance : false },
+    { field: 'wallet_currency', headerName: 'Валюта', width: 130, renderCell: (params) => params.row.wallet ? params.row.wallet.currency : false },
     {
       field: 'actions',
       headerName: 'Действия',
@@ -361,6 +423,30 @@ const Users: React.FC<UsersProps> = ({ setIsLoading }) => {
                     </MenuItem>
                   ))}
                 </TextField>
+                {selectedUser?.wallet ? (
+                  <>
+                    <TextField
+                      id="balance"
+                      label="Wallet Balance"
+                      value={selectedUser.wallet.balance}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                    <TextField
+                      id="currency"
+                      label="Currency"
+                      value={selectedUser.wallet.currency}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </>
+                ) : (
+                  <Button variant="contained" color="primary" onClick={handleCreateWallet}>
+                    Создать кошелек
+                  </Button>
+                )}
               </Container>
             </Box>
           )}
