@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Title from '../components/Title';
 import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
+import { Link } from 'react-router-dom';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -29,7 +29,10 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
         setTransactions(data);
 
         const deposits = data
-          .filter((transaction: any) => transaction.type === 'payment' && transaction.status === 'success')
+          .filter((transaction: any) =>
+            (transaction.type === 'payment' && transaction.status === 'success' && transaction.payment_method_id !== 2) ||
+            transaction.type === 'refill'
+          )
           .reduce((acc: number, transaction: any) => acc + transaction.amount, 0);
 
         setTotalDeposits(deposits);
@@ -48,6 +51,28 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
     return method.includes('_') ? method.split('_')[0] : method;
   };
 
+  const formatTransactionType = (type: string) => {
+    return type === 'payment' ? 'Оплата' : 'Пополнение';
+  };
+
+  const getMonthlyData = () => {
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const data = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(now.getFullYear(), now.getMonth(), day);
+      const formattedDate = date.toLocaleDateString();
+      const transaction = transactions.find(t => new Date(t.created_at).toLocaleDateString() === formattedDate);
+      data.push({
+        time: formattedDate,
+        amount: transaction ? transaction.amount : 0
+      });
+    }
+
+    return data;
+  };
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={8} lg={9}>
@@ -59,10 +84,10 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
             height: 240,
           }}
         >
-          <Title>Динамина за месяц</Title>
+          <Title>Динамика за месяц</Title>
           <div style={{ width: '100%', flexGrow: 1, overflow: 'hidden' }}>
             <LineChart
-              dataset={transactions.map((t) => ({ time: new Date(t.created_at).toLocaleDateString(), amount: t.amount }))}
+              dataset={getMonthlyData()}
               margin={{
                 top: 16,
                 right: 20,
@@ -73,7 +98,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
                 {
                   scaleType: 'point',
                   dataKey: 'time',
-                  tickNumber: 2,
+                  tickNumber: 5,
                   tickLabelStyle: { fill: '#000' } as ChartsTextStyle,
                 },
               ]}
@@ -83,7 +108,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
                   labelStyle: { fill: '#000' } as ChartsTextStyle,
                   tickLabelStyle: { fill: '#000' } as ChartsTextStyle,
                   max: Math.max(...transactions.map(t => t.amount)) + 500,
-                  tickNumber: 3,
+                  tickNumber: 5,
                 },
               ]}
               series={[
@@ -130,7 +155,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Плательщик</TableCell>
-                <TableCell>Инициатоор</TableCell>
+                <TableCell>Инициатор</TableCell>
                 <TableCell>Сумма</TableCell>
                 <TableCell>Способ оплаты</TableCell>
                 <TableCell>Тип платежа</TableCell>
@@ -144,14 +169,12 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
                   <TableCell>{transaction.initiator}</TableCell>
                   <TableCell>{transaction.amount}</TableCell>
                   <TableCell>{formatPaymentMethod(transaction.payment_method.name)}</TableCell>
-                  <TableCell>{transaction.type}</TableCell>
+                  <TableCell>{formatTransactionType(transaction.type)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <Link color="primary" href="#" sx={{ mt: 3 }}>
-            Все транзакции
-          </Link>
+          <Link to="/transactions">Все транзакции</Link>
         </Paper>
       </Grid>
     </Grid>
