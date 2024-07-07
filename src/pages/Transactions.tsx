@@ -157,11 +157,11 @@ const Transactions: React.FC<TransactionsProps> = ({ setIsLoading }) => {
     });
   };
 
-  const chips = ['Chip 1', 'Chip 2', 'Chip 3'];
+  const chips = ['Пополнение баланса', 'Оплата за услуги', 'Аренда приложений'];
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={handleOpen}>
+      <Button variant="contained" color="primary" onClick={handleOpen} sx={{ mb: 2 }}>
         Создать транзакцию
       </Button>
       <TableContainer component={Paper}>
@@ -277,6 +277,7 @@ const Transactions: React.FC<TransactionsProps> = ({ setIsLoading }) => {
                 value={formData.comment}
                 onChange={handleChange}
                 helperText="Выберите комментарий ниже"
+                sx={{ width: "100%", mt: 3 }}
               />
               {chips.map((chip, index) => (
                 <Chip key={index} label={chip} variant="outlined" onClick={() => handleChipClick(chip)} />
