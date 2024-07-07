@@ -244,10 +244,10 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
 
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={() => handleClickOpen(null)}>
+      <Button variant="outlined" onClick={() => handleClickOpen(null)} sx={{ mb: 2 }}>
         Создать новый продукт
       </Button>
-      <Button variant="outlined" onClick={handleCategoryDialogOpen} sx={{ ml: 2 }}>
+      <Button variant="outlined" onClick={handleCategoryDialogOpen} sx={{ ml: 2, mb: 2 }}>
         Добавить в категорию
       </Button>
       <div style={{ height: 400, width: '100%' }}>

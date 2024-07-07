@@ -22,6 +22,8 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import {convertFromRaw, Editor, EditorState} from 'draft-js';
+import 'draft-js/dist/Draft.css';
 
 
 interface CategoryProps {
@@ -100,7 +102,13 @@ function Row(props: { row: CategoryWithProducts; onEdit: (category: Category) =>
                     <TableRow key={product.id}>
                       <TableCell>{product.id}</TableCell>
                       <TableCell>{product.name}</TableCell>
-                      <TableCell>{product.description}</TableCell>
+                      <TableCell>
+                        <Editor
+                          editorState={EditorState.createWithContent(convertFromRaw(JSON.parse(product.description)))}
+                          onChange={() => null}
+                          readOnly
+                         />
+                      </TableCell>
                       <TableCell>{product.price}</TableCell>
                       <TableCell>{product.created_at}</TableCell>
                     </TableRow>

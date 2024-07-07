@@ -213,7 +213,7 @@ const Transactions: React.FC<TransactionsProps> = ({ setIsLoading }) => {
             </Button>
           </Toolbar>
         </AppBar>
-        <Container maxWidth="md">
+        <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Box component="form" sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }} noValidate autoComplete="off">
             <TextField
               id="type"
@@ -267,19 +267,21 @@ const Transactions: React.FC<TransactionsProps> = ({ setIsLoading }) => {
               value={formData.amount}
               onChange={handleChange}
             />
-            <TextField
-              id="comment"
-              label="Комментарий платежа"
-              name="comment"
-              multiline
-              rows={4}
-              value={formData.comment}
-              onChange={handleChange}
-              helperText="Выберите комментарий ниже"
-            />
-            {chips.map((chip, index) => (
-              <Chip key={index} label={chip} variant="outlined" onClick={() => handleChipClick(chip)} />
-            ))}
+            <Box sx={{ width: '100%', display: 'flex' }}>
+              <TextField
+                id="comment"
+                label="Комментарий платежа"
+                name="comment"
+                multiline
+                rows={4}
+                value={formData.comment}
+                onChange={handleChange}
+                helperText="Выберите комментарий ниже"
+              />
+              {chips.map((chip, index) => (
+                <Chip key={index} label={chip} variant="outlined" onClick={() => handleChipClick(chip)} />
+              ))}
+            </Box>
           </Box>
         </Container>
       </Dialog>
