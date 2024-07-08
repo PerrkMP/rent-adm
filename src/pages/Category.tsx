@@ -160,8 +160,8 @@ const Category: React.FC<CategoryProps> = ({ setIsLoading }) => {
           console.error('Ошибка при загрузке категорий и продуктов');
         }
 
-      } catch (error) {
-        console.error('Ошибка при загрузке категорий и продуктов:', error);
+      // } catch (error) {
+      //   console.error('Ошибка при загрузке категорий и продуктов:', error);
       } finally {
         setIsLoading(false);
       }

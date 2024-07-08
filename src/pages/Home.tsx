@@ -41,9 +41,9 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
         setTotalDeposits(paymentDeposits + refillDeposits);
       })
       .catch(error => {
-        if (error.data.status === 401) {
+        if (error.status === 401) {
           navigate('/login');
-        } else if (error.data.status === 403) {
+        } else if (error.status === 403) {
           navigate('/access-denied');
         } else {
           console.error('Error fetching transactions:', error);
