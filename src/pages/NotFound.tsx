@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 export default function NotFound() {
   return (
-    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <Box sx={{ width: '100%', maxWidth: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <Typography variant="h2" gutterBottom>
         Ошибка 404.
       </Typography>
