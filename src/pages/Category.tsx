@@ -152,9 +152,9 @@ const Category: React.FC<CategoryProps> = ({ setIsLoading }) => {
 
           const categoriesWithProducts = await Promise.all(categoryWithProductsPromises);
           setCategories(categoriesWithProducts);
-        } else if (categoryResponse.data.status === 401) {
+        } else if (categoryResponse.status === 401) {
           navigate('/login');
-        } else if (categoryResponse.data.status === 403) {
+        } else if (categoryResponse.status === 403) {
           navigate('/access-denied');
         } else {
           console.error('Ошибка при загрузке категорий и продуктов');

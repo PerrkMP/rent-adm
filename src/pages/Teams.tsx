@@ -129,7 +129,7 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
     const fetchTeamsAndUsers = async () => {
       try {
         const teamResponse = await axios.get('/teams');
-        if (teamResponse.data.status === 200) {
+        if (teamResponse.status === 200) {
           const teamsData = teamResponse.data.data;
 
           const teamWithUsersPromises = teamsData.map(async (team: Team) => {
@@ -148,9 +148,9 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
           // Fetch all users
           const usersResponse = await axios.get('/users');
           setUsers(usersResponse.data.data);
-        } else if (teamResponse.data.status === 401) {
+        } else if (teamResponse.status === 401) {
           navigate('/login');
-        } else if (teamResponse.data.status === 403) {
+        } else if (teamResponse.status === 403) {
           navigate('/access-denied');
         } else {
           console.error('Ошибка при загрузке команд и пользователей');
@@ -205,7 +205,7 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
 
       // Обновление данных
       const teamResponse = await axios.get('/teams');
-      if (teamResponse.data.status === 200) {
+      if (teamResponse.status === 200) {
         const teamsData = teamResponse.data.data;
 
         const teamWithUsersPromises = teamsData.map(async (team: Team) => {
@@ -224,9 +224,9 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
         // Fetch all users
         const usersResponse = await axios.get('/users');
         setUsers(usersResponse.data.data);
-      } else if (teamResponse.data.status === 401) {
+      } else if (teamResponse.status === 401) {
         navigate('/login');
-      } else if (teamResponse.data.status === 403) {
+      } else if (teamResponse.status === 403) {
         navigate('/access-denied');
       } else {
         console.error('Ошибка при загрузке команд и пользователей');

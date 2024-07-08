@@ -71,11 +71,11 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get('/products');
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           setRows(response.data.data);
-        } else if (response.data.status === 401) {
+        } else if (response.status === 401) {
           navigate('/login');
-        } else if (response.data.status === 403) {
+        } else if (response.status === 403) {
           navigate('/access-denied');
         } else {
           console.error('Ошибка при загрузке продуктов');
