@@ -24,6 +24,8 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import Category from "./Category";
+import {useNavigate} from "react-router-dom";
 
 interface TeamProps {
   setIsLoading: (isLoading: boolean) => void;
@@ -120,30 +122,40 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
   const [teamName, setTeamName] = React.useState('');
   const [headId, setHeadId] = React.useState<number | string>('');
   const [currentTeam, setCurrentTeam] = React.useState<Team | null>(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     setIsLoading(true);
     const fetchTeamsAndUsers = async () => {
       try {
         const teamResponse = await axios.get('/teams');
-        const teamsData = teamResponse.data.data;
+        if (teamResponse.data.status === 200) {
+          const teamsData = teamResponse.data.data;
 
-        const teamWithUsersPromises = teamsData.map(async (team: Team) => {
-          const usersResponse = await axios.get(`/teams/specific?team_id=${team.id}`);
-          const usersData = usersResponse.data.data.users;
+          const teamWithUsersPromises = teamsData.map(async (team: Team) => {
+            const usersResponse = await axios.get(`/teams/specific?team_id=${team.id}`);
+            const usersData = usersResponse.data.data.users;
 
-          return {
-            ...team,
-            users: usersData,
-          };
-        });
+            return {
+              ...team,
+              users: usersData,
+            };
+          });
 
-        const teamsWithUsers = await Promise.all(teamWithUsersPromises);
-        setTeams(teamsWithUsers);
+          const teamsWithUsers = await Promise.all(teamWithUsersPromises);
+          setTeams(teamsWithUsers);
 
-        // Fetch all users
-        const usersResponse = await axios.get('/users');
-        setUsers(usersResponse.data.data);
+          // Fetch all users
+          const usersResponse = await axios.get('/users');
+          setUsers(usersResponse.data.data);
+        } else if (teamResponse.data.status === 401) {
+          navigate('/login');
+        } else if (teamResponse.data.status === 403) {
+          navigate('/access-denied');
+        } else {
+          console.error('Ошибка при загрузке команд и пользователей');
+        }
+
       } catch (error) {
         console.error('Ошибка при загрузке команд и пользователей:', error);
       } finally {
@@ -152,7 +164,7 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
     };
 
     fetchTeamsAndUsers();
-  }, [setIsLoading]);
+  }, [setIsLoading, navigate]);
 
   const handleEdit = (team: Team) => {
     setCurrentTeam(team);
@@ -193,20 +205,32 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
 
       // Обновление данных
       const teamResponse = await axios.get('/teams');
-      const teamsData = teamResponse.data.data;
+      if (teamResponse.data.status === 200) {
+        const teamsData = teamResponse.data.data;
 
-      const teamWithUsersPromises = teamsData.map(async (team: Team) => {
-        const usersResponse = await axios.get(`/teams/specific?team_id=${team.id}`);
-        const usersData = usersResponse.data.data.users;
+        const teamWithUsersPromises = teamsData.map(async (team: Team) => {
+          const usersResponse = await axios.get(`/teams/specific?team_id=${team.id}`);
+          const usersData = usersResponse.data.data.users;
 
-        return {
-          ...team,
-          users: usersData,
-        };
-      });
+          return {
+            ...team,
+            users: usersData,
+          };
+        });
 
-      const teamsWithUsers = await Promise.all(teamWithUsersPromises);
-      setTeams(teamsWithUsers);
+        const teamsWithUsers = await Promise.all(teamWithUsersPromises);
+        setTeams(teamsWithUsers);
+
+        // Fetch all users
+        const usersResponse = await axios.get('/users');
+        setUsers(usersResponse.data.data);
+      } else if (teamResponse.data.status === 401) {
+        navigate('/login');
+      } else if (teamResponse.data.status === 403) {
+        navigate('/access-denied');
+      } else {
+        console.error('Ошибка при загрузке команд и пользователей');
+      }
     } catch (error) {
       console.error('Ошибка при сохранении команды:', error);
     } finally {

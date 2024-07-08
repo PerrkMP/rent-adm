@@ -24,6 +24,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import {convertFromRaw, Editor, EditorState} from 'draft-js';
 import 'draft-js/dist/Draft.css';
+import {useNavigate} from "react-router-dom";
 
 
 interface CategoryProps {
@@ -129,26 +130,36 @@ const Category: React.FC<CategoryProps> = ({ setIsLoading }) => {
   const [dialogTitle, setDialogTitle] = React.useState('');
   const [categoryName, setCategoryName] = React.useState('');
   const [currentCategory, setCurrentCategory] = React.useState<Category | null>(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     setIsLoading(true)
     const fetchCategories = async () => {
       try {
         const categoryResponse = await axios.get('/products/category');
-        const categoriesData = categoryResponse.data.data;
+        if (categoryResponse.data.status === 200) {
+          const categoriesData = categoryResponse.data.data;
 
-        const categoryWithProductsPromises = categoriesData.map(async (category: Category) => {
-          const productsResponse = await axios.get(`/products?category_id=${category.id}`);
-          const productsData = productsResponse.data.data;
+          const categoryWithProductsPromises = categoriesData.map(async (category: Category) => {
+            const productsResponse = await axios.get(`/products?category_id=${category.id}`);
+            const productsData = productsResponse.data.data;
 
-          return {
-            ...category,
-            products: productsData,
-          };
-        });
+            return {
+              ...category,
+              products: productsData,
+            };
+          });
 
-        const categoriesWithProducts = await Promise.all(categoryWithProductsPromises);
-        setCategories(categoriesWithProducts);
+          const categoriesWithProducts = await Promise.all(categoryWithProductsPromises);
+          setCategories(categoriesWithProducts);
+        } else if (categoryResponse.data.status === 401) {
+          navigate('/login');
+        } else if (categoryResponse.data.status === 403) {
+          navigate('/access-denied');
+        } else {
+          console.error('Ошибка при загрузке категорий и продуктов');
+        }
+
       } catch (error) {
         console.error('Ошибка при загрузке категорий и продуктов:', error);
       } finally {
@@ -157,7 +168,7 @@ const Category: React.FC<CategoryProps> = ({ setIsLoading }) => {
     };
 
     fetchCategories();
-  }, [setIsLoading]);
+  }, [setIsLoading, navigate]);
 
   const handleEdit = (category: Category) => {
     setCurrentCategory(category);

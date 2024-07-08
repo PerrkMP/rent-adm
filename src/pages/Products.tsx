@@ -25,6 +25,7 @@ import {
   convertFromRaw
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
+import {useNavigate} from "react-router-dom";
 
 interface ProductsProps {
   setIsLoading: (isLoading: boolean) => void;
@@ -63,13 +64,23 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
   const [formData, setFormData] = useState({ name: '', image_url: '', description: EditorState.createEmpty(), category_id: '', price: 0 });
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
     const fetchProducts = async () => {
       try {
         const response = await axios.get('/products');
-        setRows(response.data.data);
+        if (response.data.status === 200) {
+          setRows(response.data.data);
+        } else if (response.data.status === 401) {
+          navigate('/login');
+        } else if (response.data.status === 403) {
+          navigate('/access-denied');
+        } else {
+          console.error('Ошибка при загрузке продуктов');
+        }
+
       } catch (error) {
         console.error('Ошибка при загрузке продуктов:', error);
       } finally {
@@ -88,7 +99,7 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
 
     fetchProducts();
     fetchCategories();
-  }, [setIsLoading]);
+  }, [setIsLoading, navigate]);
 
   const handleClickOpen = (product: Product | null) => {
     setSelectedProduct(product);

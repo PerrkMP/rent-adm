@@ -12,6 +12,7 @@ import TableBody from '@mui/material/TableBody';
 import { axisClasses, LineChart } from '@mui/x-charts';
 import { ChartsTextStyle } from '@mui/x-charts/ChartsText';
 import axios from '../axiosConfig';
+import {useNavigate} from "react-router-dom";
 
 interface HomeProps {
   setIsLoading: (isLoading: boolean) => void;
@@ -20,6 +21,7 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [totalDeposits, setTotalDeposits] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
@@ -39,12 +41,18 @@ const Home: React.FC<HomeProps> = ({ setIsLoading }) => {
         setTotalDeposits(paymentDeposits + refillDeposits);
       })
       .catch(error => {
-        console.error('Error fetching transactions:', error);
+        if (error.data.status === 401) {
+          navigate('/login');
+        } else if (error.data.status === 403) {
+          navigate('/access-denied');
+        } else {
+          console.error('Error fetching transactions:', error);
+        }
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [setIsLoading]);
+  }, [setIsLoading, navigate]);
 
   const recentTransactions = transactions.slice(0, 5);
 
