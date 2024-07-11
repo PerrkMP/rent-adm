@@ -25,6 +25,7 @@ import AddIcon from '@mui/icons-material/Add';
 import {convertFromRaw, Editor, EditorState} from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import {useNavigate} from "react-router-dom";
+import {useState} from "react";
 
 
 interface CategoryProps {
@@ -130,6 +131,8 @@ const Category: React.FC<CategoryProps> = ({ setIsLoading }) => {
   const [dialogTitle, setDialogTitle] = React.useState('');
   const [categoryName, setCategoryName] = React.useState('');
   const [currentCategory, setCurrentCategory] = React.useState<Category | null>(null);
+  const [alert, setAlert] = useState<{ message: string; severity: 'success' | 'error' | 'info' | 'warning' | undefined }>({ message: '', severity: undefined });
+  const [showAlert, setShowAlert] = useState(false);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -137,10 +140,10 @@ const Category: React.FC<CategoryProps> = ({ setIsLoading }) => {
     const fetchCategories = async () => {
       try {
         const categoryResponse = await axios.get('/products/category');
-        if (categoryResponse.data.status === 200) {
+        if (categoryResponse.status === 200) {
           const categoriesData = categoryResponse.data.data;
 
-          const categoryWithProductsPromises = categoriesData.map(async (category: Category) => {
+          const categoryWithProductsPromises = categoriesData.map(async (category: any) => {
             const productsResponse = await axios.get(`/products?category_id=${category.id}`);
             const productsData = productsResponse.data.data;
 
@@ -152,16 +155,16 @@ const Category: React.FC<CategoryProps> = ({ setIsLoading }) => {
 
           const categoriesWithProducts = await Promise.all(categoryWithProductsPromises);
           setCategories(categoriesWithProducts);
-        } else if (categoryResponse.status === 401) {
-          navigate('/login');
-        } else if (categoryResponse.status === 403) {
-          navigate('/access-denied');
+          setAlert({ message: 'Категории и продукты успешно загружены', severity: 'success' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
         } else {
-          console.error('Ошибка при загрузке категорий и продуктов');
+          setAlert({ message: 'Неизвестная ошибка', severity: 'error' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
         }
-
-      // } catch (error) {
-      //   console.error('Ошибка при загрузке категорий и продуктов:', error);
+      } catch (error) {
+        navigate('/login');
       } finally {
         setIsLoading(false);
       }

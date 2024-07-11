@@ -86,6 +86,10 @@ const Users: React.FC<UsersProps> = ({ setIsLoading }) => {
             setIsLoading(false);
             navigate('/login');
           }
+          if (error.response.status === 403) {
+            setIsLoading(false);
+            navigate('/access-denied');
+          }
           setAlert({ message: error.response.data.detail.details.msg, severity: 'error' });
           setShowAlert(true);
           setTimeout(() => setShowAlert(false), 2500);

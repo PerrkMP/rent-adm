@@ -146,16 +146,28 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
           setTeams(teamsWithUsers);
 
           // Fetch all users
-          const usersResponse = await axios.get('/users');
-          setUsers(usersResponse.data.data);
-        } else if (teamResponse.status === 401) {
-          navigate('/login');
-        } else if (teamResponse.status === 403) {
-          navigate('/access-denied');
-        } else {
-          console.error('Ошибка при загрузке команд и пользователей');
+          axios.get('/users')
+            .then(response => {
+              if (response.status === 200) {
+                setUsers(response.data.data);
+              }
+            })
+            .catch(error => {
+              if (error.response) {
+                if (error.response.status === 401) {
+                  setIsLoading(false);
+                  navigate('/login');
+                }
+                if (error.response.status === 403) {
+                  setIsLoading(false);
+                  navigate('/access-denied');
+                }
+              }
+            })
+            .finally(() => {
+              setIsLoading(false);
+            });
         }
-
       } catch (error) {
         console.error('Ошибка при загрузке команд и пользователей:', error);
       } finally {

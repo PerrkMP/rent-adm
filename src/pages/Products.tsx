@@ -64,41 +64,77 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
   const [formData, setFormData] = useState({ name: '', image_url: '', description: EditorState.createEmpty(), category_id: '', price: 0 });
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+  const [alert, setAlert] = useState<{ message: string; severity: 'success' | 'error' | 'info' | 'warning' | undefined }>({ message: '', severity: undefined });
+  const [showAlert, setShowAlert] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get('/products');
+
+    axios.get('/products')
+      .then(response => {
         if (response.status === 200) {
           setRows(response.data.data);
-        } else if (response.status === 401) {
-          navigate('/login');
-        } else if (response.status === 403) {
-          navigate('/access-denied');
+          setAlert({ message: response.data.detail.details.msg, severity: 'success' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
         } else {
-          console.error('Ошибка при загрузке продуктов');
+          setAlert({ message: 'Неизвестная ошибка', severity: 'error' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
         }
-
-      } catch (error) {
-        console.error('Ошибка при загрузке продуктов:', error);
-      } finally {
+      })
+      .catch(error => {
+        if (error.response) {
+          if (error.response.status === 401) {
+            setIsLoading(false);
+            navigate('/login');
+          }
+          if (error.response.status === 403) {
+            setIsLoading(false);
+            navigate('/access-denied');
+          }
+          setAlert({ message: error.response.data.detail.details.msg, severity: 'error' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
+        }
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    };
+      });
 
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('/products/category');
-        setCategories(response.data.data);
-      } catch (error) {
-        console.error('Ошибка при загрузке категорий:', error);
-      }
-    };
+    axios.get('/products/category')
+      .then(response => {
+        if (response.status === 200) {
+          setCategories(response.data.data);
+          setAlert({ message: response.data.detail.details.msg, severity: 'success' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
+        } else {
+          setAlert({ message: 'Неизвестная ошибка', severity: 'error' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
+        }
+      })
+      .catch(error => {
+        if (error.response) {
+          if (error.response.status === 401) {
+            setIsLoading(false);
+            navigate('/login');
+          }
+          if (error.response.status === 403) {
+            setIsLoading(false);
+            navigate('/access-denied');
+          }
+          setAlert({ message: error.response.data.detail.details.msg, severity: 'error' });
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 2500);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
-    fetchProducts();
-    fetchCategories();
   }, [setIsLoading, navigate]);
 
   const handleClickOpen = (product: Product | null) => {
