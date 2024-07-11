@@ -151,7 +151,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <List component="nav">
             {mainListItems}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
           </List>
         </Drawer>
         <Box
