@@ -128,6 +128,29 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
     setIsLoading(true);
     const fetchTeamsAndUsers = async () => {
       try {
+        // Fetch all users
+        axios.get('/users')
+          .then(response => {
+            if (response.status === 200) {
+              setUsers(response.data.data);
+            }
+          })
+          .catch(error => {
+            if (error.response) {
+              if (error.response.status === 401) {
+                setIsLoading(false);
+                navigate('/login');
+              }
+              if (error.response.status === 403) {
+                setIsLoading(false);
+                navigate('/access-denied');
+              }
+            }
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+
         const teamResponse = await axios.get('/teams');
         if (teamResponse.status === 200) {
           const teamsData = teamResponse.data.data;
@@ -144,29 +167,6 @@ const Team: React.FC<TeamProps> = ({ setIsLoading }) => {
 
           const teamsWithUsers = await Promise.all(teamWithUsersPromises);
           setTeams(teamsWithUsers);
-
-          // Fetch all users
-          axios.get('/users')
-            .then(response => {
-              if (response.status === 200) {
-                setUsers(response.data.data);
-              }
-            })
-            .catch(error => {
-              if (error.response) {
-                if (error.response.status === 401) {
-                  setIsLoading(false);
-                  navigate('/login');
-                }
-                if (error.response.status === 403) {
-                  setIsLoading(false);
-                  navigate('/access-denied');
-                }
-              }
-            })
-            .finally(() => {
-              setIsLoading(false);
-            });
         }
       } catch (error) {
         console.error('Ошибка при загрузке команд и пользователей:', error);
