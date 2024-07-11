@@ -65,28 +65,28 @@ export const mainListItems = (
   </React.Fragment>
 );
 
-export const secondaryListItems = (
-  <React.Fragment>
-    <ListSubheader component="div" inset>
-      Приложения
-    </ListSubheader>
-    <ListItemButton>
-      <ListItemIcon>
-        <AppShortcutIcon />
-      </ListItemIcon>
-      <ListItemText primary="Tiger 1" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AppShortcutIcon />
-      </ListItemIcon>
-      <ListItemText primary="Tiger 2" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AppShortcutIcon />
-      </ListItemIcon>
-      <ListItemText primary="Tiger 3" />
-    </ListItemButton>
-  </React.Fragment>
-);
+// export const secondaryListItems = (
+//   <React.Fragment>
+//     <ListSubheader component="div" inset>
+//       Приложения
+//     </ListSubheader>
+//     <ListItemButton>
+//       <ListItemIcon>
+//         <AppShortcutIcon />
+//       </ListItemIcon>
+//       <ListItemText primary="Tiger 1" />
+//     </ListItemButton>
+//     <ListItemButton>
+//       <ListItemIcon>
+//         <AppShortcutIcon />
+//       </ListItemIcon>
+//       <ListItemText primary="Tiger 2" />
+//     </ListItemButton>
+//     <ListItemButton>
+//       <ListItemIcon>
+//         <AppShortcutIcon />
+//       </ListItemIcon>
+//       <ListItemText primary="Tiger 3" />
+//     </ListItemButton>
+//   </React.Fragment>
+// );
