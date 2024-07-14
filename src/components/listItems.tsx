@@ -9,7 +9,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import PeopleIcon from '@mui/icons-material/People';
 import CategoryIcon from '@mui/icons-material/Category';
 import AppsIcon from '@mui/icons-material/Apps';
-import AppShortcutIcon from '@mui/icons-material/AppShortcut';
+import ViewStreamIcon from '@mui/icons-material/ViewStream';
 import PersonIcon from '@mui/icons-material/Person';
 
 export const mainListItems = (
@@ -28,6 +28,14 @@ export const mainListItems = (
           <ReceiptIcon />
         </ListItemIcon>
         <ListItemText primary="Транзакции" />
+      </ListItemButton>
+    </Link>
+    <Link to="/orders">
+      <ListItemButton>
+        <ListItemIcon>
+          <ViewStreamIcon />
+        </ListItemIcon>
+        <ListItemText primary="Заказы" />
       </ListItemButton>
     </Link>
     <Link to="/users">

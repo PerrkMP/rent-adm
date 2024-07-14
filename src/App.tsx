@@ -10,6 +10,7 @@ import Teams from "./pages/Teams";
 import Transactions from "./pages/Transactions";
 import AccessDenied from "./pages/AccessDenied";
 import NotFound from "./pages/NotFound";
+import Orders from "./pages/Orders";
 
 const App: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const App: React.FC = () => {
             <Route path="/category" element={<Category setIsLoading={setIsLoading} />} />
             <Route path="/products" element={<Products setIsLoading={setIsLoading} />} />
             <Route path="/transactions" element={<Transactions setIsLoading={setIsLoading} />} />
+            <Route path="/orders" element={<Orders setIsLoading={setIsLoading} />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
