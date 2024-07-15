@@ -26,6 +26,15 @@ import {
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import {useNavigate} from "react-router-dom";
+import jwt from "jsonwebtoken";
+import ListItemText from "@mui/material/ListItemText";
+
+interface JwtPayload {
+  role_id: number;
+}
+
+const token = localStorage.getItem('token');
+const { role_id } = token ? (jwt.decode(token) as JwtPayload) : { role_id: 0 };
 
 interface ProductsProps {
   setIsLoading: (isLoading: boolean) => void;
@@ -291,12 +300,16 @@ const Products: React.FC<ProductsProps> = ({ setIsLoading }) => {
 
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={() => handleClickOpen(null)} sx={{ mb: 2 }}>
-        Создать новый продукт
-      </Button>
-      <Button variant="outlined" onClick={handleCategoryDialogOpen} sx={{ ml: 2, mb: 2 }}>
-        Добавить в категорию
-      </Button>
+      {role_id >= 3 && (
+        <div>
+          <Button variant="outlined" onClick={() => handleClickOpen(null)} sx={{ mb: 2 }}>
+            Создать новый продукт
+          </Button>
+          <Button variant="outlined" onClick={handleCategoryDialogOpen} sx={{ ml: 2, mb: 2 }}>
+            Добавить в категорию
+          </Button>
+        </div>
+      )}
       <div style={{ height: 400, width: '100%' }}>
         <DataGrid
           rows={rows}

@@ -41,7 +41,7 @@ export default function SignIn() {
         console.log('Login successful:', response.data);
         // Сохранить токен в локальном хранилище
         localStorage.setItem('token', response.data.data.token);
-        navigate('/home');
+        navigate('/users');
       } else {
         console.log('Login failed:', response.data);
         // Действия при неудачном входе

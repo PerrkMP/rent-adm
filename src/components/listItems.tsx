@@ -11,17 +11,27 @@ import CategoryIcon from '@mui/icons-material/Category';
 import AppsIcon from '@mui/icons-material/Apps';
 import ViewStreamIcon from '@mui/icons-material/ViewStream';
 import PersonIcon from '@mui/icons-material/Person';
+import jwt from "jsonwebtoken";
+
+interface JwtPayload {
+  role_id: number;
+}
+
+const token = localStorage.getItem('token');
+const { role_id } = token ? (jwt.decode(token) as JwtPayload) : { role_id: 0 };
 
 export const mainListItems = (
   <React.Fragment>
-    <Link to="/">
-      <ListItemButton>
-        <ListItemIcon>
-          <DashboardIcon />
-        </ListItemIcon>
-        <ListItemText primary="Дашборд" />
-      </ListItemButton>
-    </Link>
+    {role_id >= 3 && (
+      <Link to="/">
+        <ListItemButton>
+          <ListItemIcon>
+            <DashboardIcon />
+          </ListItemIcon>
+          <ListItemText primary="Дашборд" />
+        </ListItemButton>
+      </Link>
+    )}
     <Link to="/transactions">
       <ListItemButton>
         <ListItemIcon>
@@ -46,30 +56,39 @@ export const mainListItems = (
         <ListItemText primary="Пользователи" />
       </ListItemButton>
     </Link>
-    <Link to="/teams">
-      <ListItemButton>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <ListItemText primary="Команды" />
-      </ListItemButton>
-    </Link>
+    {role_id >= 3 && (
+      <Link to="/teams">
+        <ListItemButton>
+          <ListItemIcon>
+            <PeopleIcon />
+          </ListItemIcon>
+          <ListItemText primary="Команды" />
+        </ListItemButton>
+      </Link>
+    )}
     <Link to="/products">
       <ListItemButton>
         <ListItemIcon>
           <AppsIcon />
         </ListItemIcon>
-        <ListItemText primary="Продукты" />
+        {role_id < 3 && (
+          <ListItemText primary="Каталог" />
+        )}
+        {role_id >= 3 && (
+          <ListItemText primary="Продукты" />
+        )}
       </ListItemButton>
     </Link>
-    <Link to="/category">
-      <ListItemButton>
-        <ListItemIcon>
-          <CategoryIcon />
-        </ListItemIcon>
-        <ListItemText primary="Категории" />
-      </ListItemButton>
-    </Link>
+    {role_id >= 3 && (
+      <Link to="/category">
+        <ListItemButton>
+          <ListItemIcon>
+            <CategoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Категории" />
+        </ListItemButton>
+      </Link>
+    )}
   </React.Fragment>
 );
 
